@@ -1,0 +1,9 @@
+# ignore all .aax files
+# so you can work with them in the repo
+**/*.aax
+
+#ignore output folder
+**/output
+
+# file providing audible activation bytes
+.authcode
