@@ -6,7 +6,7 @@ import subprocess
 import shutil
 
 
-def sanitize(string, replacement_symbol="_"):
+def sanitize(string, replacement_symbol = "_"):
     """ 
     Turns filesystem-unfriendly characters into whatever is 
     specified by replacement_symbol (Default: "_") 
@@ -16,10 +16,14 @@ def sanitize(string, replacement_symbol="_"):
                     ":": replacement_symbol,
                     ".": replacement_symbol,
                     ",": replacement_symbol}
+                    
     for pattern, replacement in replace_dict.items():
         string = re.subn(re.escape(pattern), replacement, string)[0]
+        
         # now remove multiple occurrences of the replacement symbol
-        string = re.subn(f'{re.escape(replacement_symbol)}+', '', string)[0]
+    string = re.subn(f"{re.escape(replacement_symbol)}" + r"{1,}",
+                    replacement_symbol, string)[0]        
+        
     return string
 
 
