@@ -267,7 +267,7 @@ if __name__ == "__main__":
     # check if the authcode var is a path to somewhere
     if os.path.exists(authcode):
         # read authcode from file
-        activation_bytes = open(".authcode", "r").read().strip("\n")
+        activation_bytes = open(authcode, "r").read().strip("\n")
 
     else:
         activation_bytes = authcode
