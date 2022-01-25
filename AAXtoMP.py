@@ -84,6 +84,7 @@ def transcode(aax_file, activation_bytes,
     logging.info(f"Attempting to create path {output_dir}")
     pathlib.Path(output_dir).mkdir(parents = True, exist_ok = True)
 
+    logging.info(f"Starting conversion of {aax_file}...")
     # now convert aax file to mp3
     os.system(f"ffmpeg -y -loglevel error"
               f" -activation_bytes  {activation_bytes}"
