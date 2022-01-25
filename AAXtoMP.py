@@ -251,16 +251,28 @@ if __name__ == "__main__":
             print("No valid files provided.")
             sys.exit(0)
 
+    # if no authcode arg is provided, assume there is a .authcode file in
+    #   the current dir
     if args["authcode"] is None:
-        if not os.path.exists(".authcode"):
-            print("No authcode provided and no '.authcode' file found.")
-            sys.exit(0)
+        authcode = ".authcode"
+    
+    # otherwise use whatever was given as the argument
+    else:
+        authcode = args["authcode"]
 
+    # check if the authcode var is a path to somewhere
+    if os.path.exists(authcode):
         # read authcode from file
         activation_bytes = open(".authcode", "r").read().strip("\n")
-    
+
     else:
-        activation_bytes = args["authcode"]
+        activation_bytes = authcode
+
+    # check if the authcode is a hex number
+    if not re.match(r"[0-9a-fA-F]+", activation_bytes):
+        print("No valid authcode provided and no valid '.authcode' file " 
+                "found.")
+        sys.exit(0)
 
 
     # start main transcoding loop
