@@ -237,15 +237,19 @@ if __name__ == "__main__":
     # get all .aax files in the given directories
     if args["directory"] is not None:
         for dir in args["directory"]:
-            for item in os.scandir(dir):
-                if item.name[-4:] == ".aax":
-                    aax_files.append(item) 
+            p = pathlib.Path(dir)
+            aax_it = p.glob("*.aax")
+            dir_files = sorted(aax_it)
+
+            # convert dir_files to string representations and add to overall
+            #   file list
+            aax_files = aax_files + [str(x) for x in dir_files]
                 
     # get all individual .aax files
     if args["infile"] is not None:
         for file in args["infile"]:
-            if file[-4:] == ".aax":
-                aax_files.append(file)
+            if re.search(".aax$", file):
+                aax_files.append(str(pathlib.Path(file).expanduser()))
 
     if len(aax_files) == 0:
             print("No valid files provided.")
