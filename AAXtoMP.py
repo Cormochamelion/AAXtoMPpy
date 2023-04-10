@@ -37,6 +37,7 @@ def sanitize(string, replacement_symbol="_"):
 def transcode(
     aax_file,
     activation_bytes,
+    output_root="output",
     extension="mp3",
     codec="libmp3lame",
     id3_version_param="-id3v2_version 3",
@@ -93,7 +94,7 @@ def transcode(
 
     # generate file name and directories
     output_dir = (
-        f"output/{sanitize(meta_book['genre'])}/"
+        f"{output_root}/{sanitize(meta_book['genre'])}/"
         f"{sanitize(meta_book['artist'])}/"
         f"{sanitize(meta_book['title'])}"
     )
@@ -316,6 +317,7 @@ if __name__ == "__main__":
         transcode(
             aax_file,
             activation_bytes,
+            args["output"],
             args["format"],
             codec,
             id3_version_param,
