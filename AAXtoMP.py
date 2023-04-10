@@ -34,6 +34,42 @@ def sanitize(string, replacement_symbol="_"):
     return string
 
 
+def extract_chapters(metadata_string):
+    """
+    Given a single string containing the metadata of an aax file, extract the
+    chapter metadata in a structured way.
+    """
+    re_chapters = re.compile(r"^[ ]*Chapters:")
+    re_data = re.compile(r"^[ ]*Chapter #0:(\d+): start ([\d.]+), end ([\d.]+)")
+    re_metadata = re.compile(r"^[ ]*title[ ]*:[ ]*(.+)")
+
+    chapter_data = []
+    current_data = {}
+    searching_chapters = False
+
+    for line in metadata_string.split("\n"):
+        if not searching_chapters:
+            if re.match(re_chapters, line):
+                searching_chapters = True
+        else:
+            data_res = re.search(re_data, line)
+            metadata_res = re.search(re_metadata, line)
+            if data_res:
+                current_data = current_data | {
+                    "index": data_res[1],
+                    "start": data_res[2],
+                    "end": data_res[3],
+                }
+
+            elif metadata_res:
+                current_data = current_data | {"title": metadata_res[1]}
+
+                chapter_data.append(current_data)
+                current_data = {}
+
+    return chapter_data
+
+
 def transcode(
     aax_file,
     activation_bytes,
@@ -132,20 +168,15 @@ def transcode(
         # read chapter metadata
         # match all the chapter lines
         # titles and other metadata get ignored at the moment
-        metadata_chapters = re.findall(
-            r"Chapter #0:\d+: start \d+.\d+, end "
-            r"\d+.\d+\n    Metadata:\n      title"
-            r"           : Chapter \d+\n",
-            metadata_full,
-        )
+        metadata_chapters = extract_chapters(metadata_full)
 
         # Proceed through every chapter and cut main audio file according to
         #  chapter length
         for chapter in metadata_chapters:
-            chapter_num_orig = re.search(r"(Chapter #0:)(\d+)", chapter).group(2)
-            chapter_num = int(chapter_num_orig) + 1
-            chapter_start = re.search(r"(?<= start )[\d.]+", chapter).group()
-            chapter_end = re.search(r"(?<= end )[\d.]+", chapter).group()
+            chapter_index = chapter["index"]
+            chapter_num = int(chapter_index) + 1
+            chapter_start = chapter["start"]
+            chapter_end = chapter["end"]
             chapter_duration = float(chapter_end) - float(chapter_start)
             chapter_title = f"{meta_book['title']}_Chapter_{chapter_num:03}"
             chapter_file = f"{output_dir}/" f"{sanitize(chapter_title)}.{extension}"
